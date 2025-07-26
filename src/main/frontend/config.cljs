@@ -106,7 +106,7 @@
     publishing?
     path
 
-    (util/file-protocol?)
+    (or (util/file-protocol?) (util/capacitor-new?))
     (string/replace path "/static/" "./")
 
     :else
@@ -362,6 +362,10 @@
 (defonce local-handle "handle")
 (defonce db-version-prefix sqlite-util/db-version-prefix)
 
+(defn db-graph-name
+  [repo-with-prefix]
+  (string/replace-first repo-with-prefix db-version-prefix ""))
+
 (defn local-file-based-graph?
   [s]
   (and (string? s)
@@ -420,7 +424,8 @@
 
     ;; nfs, browser-fs-access
     ;; Format: logseq_local_{dir-name}
-        (local-file-based-graph? repo-url)
+        (or (local-file-based-graph? repo-url)
+            (and publishing? (not db-based?)))
         (string/replace-first repo-url local-db-prefix "")
 
      ;; unit test
